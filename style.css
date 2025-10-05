@@ -1,0 +1,36 @@
+nav > ul {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+    justify-content: space-evenly;
+    background-color: black;
+    padding:0.5em
+}
+
+nav > ul > li {
+    background-color: orange;
+    padding: 0.5em;
+    border-color: white;
+    border-style: solid;
+    border-radius: 0.5em;
+    border-width: 5px;
+}
+
+nav > ul > li > a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/*
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+*/
+
+body > main {
+    background-color: gray;
+    border: 0.2em solid black;
+    border-radius: 0.5em;
+}
