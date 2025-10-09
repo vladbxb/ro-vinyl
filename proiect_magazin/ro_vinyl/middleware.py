@@ -1,3 +1,6 @@
+# In acest middleware pur si simplu pot stoca accesarile si sa mut diversi helperi din views.py aici. Adica practic sa cuplez mai mult implementarile din views.py de acest middleware pentru tema 2 de laborator (sau task 2 cred ca se numea)
+# https://docs.google.com/document/d/1lDJNvhsuVYqGF2KrQ4l7iRXq73-Mh_7WqoPhMseWkYU/edit?tab=t.0#heading=h.xifb2bxbc7q4
+
 class MiddlewareNou:
     def __init__(self, get_response):
         self.get_response = get_response
