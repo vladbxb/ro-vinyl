@@ -266,6 +266,9 @@ def craft_log_response(
             </tr>
 '''
         for accesare in accesari_de_parcurs:
+            # Din cauza ca proprietatile au fost filtrate mai devreme, metoda
+            # cere_proprietati() face o asertie la inceput ca lista proprietati_str
+            # sigur va contine doar proprietati valide
             proprietati = accesare.cere_proprietati(proprietati_str)
             doc += '''
             <tr>
@@ -320,14 +323,13 @@ def log(request: HttpRequest) -> HttpResponse:
     _adauga_accesare(request)
     ultimele = request.GET.get('ultimele')
     if ultimele:
-        ultimele = int(ultimele)
-        if ultimele < 0:
-            raise ValueError('Numarul de accesari cerute trebuie sa fie pozitiv!')
+        # Se alege 0 ca valoare minima ca un sanity-check
+        # pentru numere negative
+        ultimele = max(int(ultimele), 0)
     else:
         ultimele = len(accesari)
     iduri = request.GET.getlist('iduri')
     tabel = request.GET.get('tabel')
-    print(f'tabel este: {tabel}')
     cerere_accesari = request.GET.get('accesari')
     cerere_dubluri = request.GET.get('dubluri')
     return craft_log_response(

@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}Pagina mea{% endblock %}</title>
+        <link rel="stylesheet" href="{% static "ro_vinyl/css/stil.css" %}"/>
+    </head>
+    <body>
+        <header>
+            <h1>Site-ul meu</h1>
+        </header>       
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+        <footer>
+            <p>© 2024 Site-ul meu</p>
+        </footer>
+    </body>
+</html>
