@@ -94,6 +94,8 @@ def _client_ip_address(request: HttpRequest) -> str:
         ip_addr = x_forwarded_for_value.split(',')[-1].strip()
     else:
         ip_addr = req_headers.get('REMOTE_ADDR')
+    if ip_addr is None:
+        raise RuntimeError('Fetching client IP address from HttpRequest yielded None')
     return ip_addr
 
 def index(request: HttpRequest) -> HttpResponse:
