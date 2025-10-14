@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'ro_vinyl.middleware.MiddlewareNou',
+    'ro_vinyl.procesare.MiddlewareNou',
 ]
 
 ROOT_URLCONF = 'proiect_magazin.urls'

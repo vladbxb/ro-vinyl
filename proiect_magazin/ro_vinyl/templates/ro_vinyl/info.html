@@ -1,0 +1,18 @@
+<html>
+    <head>
+        <title>Informatii despre server</title>
+    </head>
+    <body>
+        <h1>Informatii despre server</h1>
+        <section>
+            <h2>Parametri</h2>
+            <p>Parametrii primiti: <strong>{{ nr_parametri }}</strong></p>
+            {% if nr_parametri > 0 %}
+            <p>Numele parametrilor: 
+            {% for nume_parametru in nume_parametri %}
+            <span> {{ nume_parametru }},</span> 
+            {% endfor %}
+            </p>
+            {% endif %}
+    </body>
+</html>

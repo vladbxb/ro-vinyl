@@ -16,14 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='index'),
-    path('ro_vinyl/', include('ro_vinyl.urls')),
-    path('info/', views.info, name="info"),
-    path('info/data/', views.static_data, name="static_data"),
-    path('info/data/<str:data>', views.afis_data, name="afis_data"),
-    path('log/', views.log, name="static_log"),
+    path('', include('ro_vinyl.urls')),
+    # path('', views.index, name='index'),
+    # path('info/', views.info, name="info"),
+    # path('info/data/', views.static_data, name="static_data"),
+    # path('info/data/<str:data>', views.afis_data, name="afis_data"),
+    # path('log/', views.log, name="static_log"),
 ]
