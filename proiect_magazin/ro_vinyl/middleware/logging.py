@@ -44,7 +44,7 @@ class LoggingMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        acces.accesari.append(request)
+        LoggingMiddleware.adauga_accesare(request)
         response = self.get_response(request)
         return response
 

@@ -66,31 +66,33 @@ class Accesare:
     def formatare_data(data_accesare: datetime.datetime, format_str: str) -> str:
         """Returneaza data accesarii in formatul specificat"""
         return datetime.datetime.strftime(data_accesare, format_str)
-    def cere_proprietati(self, proprietati: list[str]) -> list:
+    def cere_proprietati(self, proprietati: list[str]) -> tuple:
         """
         Construieste lista de valori ale proprietatilor,
         in ordinea in care au fost cerute, din obiectul Accesare.
         """
-        rezultat = []
+        id, ip, url, data, ora, pagina = None, None, None, None, None, None
         for proprietate in proprietati:
             assert proprietate in VALORI_TABEL
             match proprietate:
                 case 'id':
-                    rezultat.append(self.id)
+                    id = self.id
                 case 'ip':
-                    rezultat.append(self.ip_client)
+                    ip = self.ip_client
                 case 'url':
-                    rezultat.append(self.url)
+                    url = Accesare.url(self.request)
                 case 'data':
                     # rezultat.append(self.data(DATE_FORMAT_STR))
-                    rezultat.append(Accesare.formatare_data(self.data_accesare, DATE_FORMAT_STR))
+                    data = Accesare.formatare_data(self.data_accesare, DATE_FORMAT_STR)
+                    print(data)
                 case 'ora':
                     # rezultat.append(self.data(TIME_FORMAT_STR))
-                    rezultat.append(Accesare.formatare_data(self.data_accesare, TIME_FORMAT_STR))
+                    ora = Accesare.formatare_data(self.data_accesare, TIME_FORMAT_STR)
+                    print(ora)
                 case 'pagina':
-                    rezultat.append(self.pagina)
-        return rezultat
-
+                    pagina = self.pagina
+                    print(pagina)
+        return (id, ip, url, data, ora, pagina)
 def iduri_la_accesari(iduri: list[str], *, dubluri: bool) -> list[Accesare]:
     """
     Returneaza o lista de obiecte de tip Accesare
@@ -116,18 +118,19 @@ def frecv_pagina(*, cea_mai_accesata: bool) -> str:
     in functie de parametru.
     """
     frecv = {}
-    cnt, rez = 0, ''
+    cnt, rez = 0, str()
     for elem in accesari:
-        frecv[elem.url] = frecv.get(elem.url, 0) + 1
-        if frecv[elem.url] >= cnt:
-            cnt, rez = frecv[elem.url], elem.url
+        elem_url = Accesare.url(elem.request)
+        frecv[elem_url] = frecv.get(elem_url, 0) + 1
+        if frecv[elem_url] >= cnt:
+            cnt, rez = frecv[elem_url], elem_url
     if cea_mai_accesata:
-        return rez
+        return rez if isinstance(rez, str) else str()
     cnt = max(frecv.values())
-    rez = ''
+    rez = str()
     for url, fv in frecv.items():
         if fv <= cnt:
             rez, cnt = url, fv
-    return rez
+    return rez if isinstance(rez, str) else str()
 
 accesari: list[Accesare] = []

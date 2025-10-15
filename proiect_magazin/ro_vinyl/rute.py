@@ -93,7 +93,7 @@ def afis_data(request: HttpRequest, data) -> HttpResponse:
             # This is a no op, because the url for this route
             # blocks any other values, but just in case
             raise ValueError(f"Expected query params 'zi' or 'timp', instead got {data}")
-    render(
+    return render(
         request,
         'ro_vinyl/data.html',
         {
@@ -130,7 +130,7 @@ def afis_data(request: HttpRequest, data) -> HttpResponse:
 
 def craft_log_response(
         accesari_cerute: int,
-        iduri: list[str],
+        iduri: list[str], # de fapt folosit doar pentru a genera accesari_de_parcurs
         tabel: str | None,
         *,
         total_accesari_cerute: bool,
@@ -202,8 +202,7 @@ def craft_log_response(
         </table>
 '''
     #############################################################
-    
-    
+
     # Daca a fost cerut tabel, nu mai conteaza detaliile, daca n-au fost cerute nici detaliile nici tabelul,
     # se afiseaza o lista de mesaje simple
     elif not detalii_cerute:
@@ -218,10 +217,10 @@ def craft_log_response(
             <p>Accesarea nr. <strong>{accesare.id + 1}</strong>:</p>
             <ul>
                 <li>are IP-ul <strong>{accesare.ip_client}</strong></li>
-                <li>a accesat url-ul <strong>{accesare.url}</strong></li> 
+                <li>a accesat url-ul <strong>{accesare.url}</strong></li>
                 <ul>
-                    <li>pe data: <strong>{accesare.data(acces.DATE_FORMAT_STR)}</strong></li>
-                    <li>la ora: <strong>{accesare.data(acces.TIME_FORMAT_STR)}</strong></li>
+                    <li>pe data: <strong>{acces.Accesare.formatare_data(accesare.data_accesare, acces.DATE_FORMAT_STR)}</strong></li>
+                    <li>la ora: <strong>{acces.Accesare.formatare_data(accesare.data_accesare, acces.TIME_FORMAT_STR)}</strong></li>
                 </ul>
             </ul>
  '''
@@ -250,18 +249,84 @@ def craft_log_response(
 
 def log(request: HttpRequest) -> HttpResponse:
     """Ruta pentru pagina 'log'."""
-    ultimele = request.GET.get('ultimele')
-    if ultimele:
+    cerere_dubluri = request.GET.get('dubluri')
+    dubluri_cerute = cerere_dubluri=='true'
+    cerere_accesari = request.GET.get('accesari')
+    detalii_cerute = cerere_accesari=='detalii'
+    info_accesari = []
+    total_accesari = len(acces.accesari)
+    accesari_cerute = request.GET.get('ultimele')
+    if accesari_cerute:
         # Se alege 0 ca valoare minima ca un sanity-check
         # pentru numere negative
-        ultimele = max(int(ultimele), 0)
+        accesari_cerute = max(int(accesari_cerute), 0)
     else:
-        ultimele = len(acces.accesari)
+        accesari_cerute = len(acces.accesari)
     iduri = request.GET.getlist('iduri')
-    tabel = request.GET.get('tabel')
-    cerere_accesari = request.GET.get('accesari')
-    cerere_dubluri = request.GET.get('dubluri')
+    if len(iduri) > 0:
+        accesari_de_parcurs = acces.iduri_la_accesari(iduri, dubluri=cerere_dubluri=='true')
+    else:
+        accesari_de_parcurs = acces.accesari[:min(accesari_cerute, total_accesari)]
+    if not detalii_cerute:
+        info_accesari = [[accesare.id + 1, accesare.pagina] for accesare in accesari_de_parcurs]
+    else:
+        info_accesari = [
+            [
+            accesare.id + 1,
+            accesare.ip_client,
+            accesare.url,
+            acces.Accesare.formatare_data(accesare.data_accesare, acces.DATE_FORMAT_STR),
+            acces.Accesare.formatare_data(accesare.data_accesare, acces.TIME_FORMAT_STR)
+            ]
+            for accesare in accesari_de_parcurs
+        ]
+    total_accesari_cerute = cerere_accesari=='nr'
+
+    tabel: str | None = request.GET.get('tabel')
+    proprietati_cerute_tabel = tabel
+    proprietati_tabel = []
+    proprietati_tabel_upper = []
+    if proprietati_cerute_tabel is not None:
+        if tabel == 'tot':
+            proprietati_cerute_tabel = 'id,ip,url,data'
+        # Filtreaza proprietatile de la atributul 'tabel' care nu sunt asteptate de program
+        proprietati_tabel = [
+            proprietate for proprietate in proprietati_cerute_tabel.split(',')
+            if proprietate in acces.VALORI_TABEL
+        ]
+        proprietati_tabel_upper = [
+            proprietate.upper() for proprietate in proprietati_tabel
+        ]
+    proprietati_accesari = [accesare.cere_proprietati(proprietati_tabel) for accesare in accesari_de_parcurs]
+
+    cmp_accesata_pagina = acces.frecv_pagina(cea_mai_accesata=False)
+    print(f'cmp: {cmp_accesata_pagina}')
+    cmm_accesata_pagina = acces.frecv_pagina(cea_mai_accesata=True)
+    print(f'cmm: {cmm_accesata_pagina}')
     
+    print(f'proprietati tabel upper: {proprietati_tabel_upper}')
+
+    params = {
+        'accesari_cerute': accesari_cerute,
+        'accesari_de_parcurs': accesari_de_parcurs,
+        'proprietati_cerute_tabel': proprietati_cerute_tabel,
+        'total_accesari_cerute': total_accesari_cerute,
+        'detalii_cerute': detalii_cerute,
+        'dubluri_cerute': dubluri_cerute,
+        'proprietati_tabel_upper': proprietati_tabel_upper,
+        'total_accesari': total_accesari,
+        'proprietati_accesari': proprietati_accesari,
+        'info_accesari': info_accesari,
+        'cmp_accesata_pagina': cmp_accesata_pagina,
+        'cmm_accesata_pagina': cmm_accesata_pagina,
+        'tabel': tabel,
+    }
+
+    return render(
+        request,
+        'ro_vinyl/log.html',
+        params
+    )
 #     _adauga_accesare(request)
 #     ultimele = request.GET.get('ultimele')
 #     if ultimele:
