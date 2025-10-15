@@ -145,19 +145,30 @@ def craft_log_response(
 <html>
     <body>
 '''
+    #############################################################
+    # Daca s-au cerut totalul de accesari, se executa partea asta
     if total_accesari_cerute:
         doc += f'''
         <p><strong>Au fost cerute {len(acces.accesari)} accesari in total, de la pornirea serverului.</strong></p>
 '''
+    #############################################################
+
+    #############################################################
+    # Asta este pentru iduri specificate de utilizator (sau nu)
     if len(iduri) > 0:
-        accesari_de_parcurs = acces.Accesare.iduri_la_accesari(iduri, dubluri=dubluri_cerute)
+        accesari_de_parcurs = acces.iduri_la_accesari(iduri, dubluri=dubluri_cerute)
     else:
         accesari_de_parcurs = acces.accesari[:min(accesari_cerute, len(acces.accesari))]
+    #############################################################
+
+    #############################################################
+    # Asta este pentru alegerea coloanelor din tabel
     if tabel is not None:
         doc += '''
         <table style="border: 1px solid black; border-collapse: collapse;">
             <tr>
 '''
+    # Daca se aleg toate coloanele sau coloane specifice
         if tabel == 'tot':
             proprietati_cerute = 'id,ip,url,data'
         else:
@@ -190,12 +201,18 @@ def craft_log_response(
         doc += '''
         </table>
 '''
+    #############################################################
+    
+    
+    # Daca a fost cerut tabel, nu mai conteaza detaliile, daca n-au fost cerute nici detaliile nici tabelul,
+    # se afiseaza o lista de mesaje simple
     elif not detalii_cerute:
         for accesare in accesari_de_parcurs:
             doc += f'''
             <p>Accesarea nr. <strong>{accesare.id + 1}</strong> a fost facuta la pagina {accesare.pagina}</strong></p>
 '''
     else:
+    # Daca in schimb au fost cerute detaliile, se afiseaza si detaliile accesarilor
         for accesare in accesari_de_parcurs:
             doc += f'''
             <p>Accesarea nr. <strong>{accesare.id + 1}</strong>:</p>
@@ -208,17 +225,23 @@ def craft_log_response(
                 </ul>
             </ul>
  '''
-    cmp_accesata_pagina = acces.Accesare.frecv_pagina(cea_mai_accesata=False)
-    cmm_accesata_pagina = acces.Accesare.frecv_pagina(cea_mai_accesata=True)
+
+    ##########################################################
+    # Aici se afiseaza cea mai mult vizitata si cea mai putin vizitata pagina
+    cmp_accesata_pagina = acces.frecv_pagina(cea_mai_accesata=False)
+    cmm_accesata_pagina = acces.frecv_pagina(cea_mai_accesata=True)
     doc += f'''
             <p>Cea mai putin accesata pagina este: <strong>{cmp_accesata_pagina}</strong></p>
 '''
     doc += f'''
             <p>Cea mai mult accesata pagina este: <strong>{cmm_accesata_pagina}</strong></p>
 '''
-    if accesari_cerute > len(accesari):
+    ###########################################################
+
+    # Se afiseaza un mesaj de avertisment daca se cer mai multe accesari decat exista
+    if accesari_cerute > len(acces.accesari):
         doc += f'''
-            <p><strong>Exista doar <span style="color: green;">{len(accesari)}</span> accesari fata de <span style="color: red;">{accesari_cerute}</span> accesari cerute</strong></p>'''
+            <p><strong>Exista doar <span style="color: green;">{len(acces.accesari)}</span> accesari fata de <span style="color: red;">{accesari_cerute}</span> accesari cerute</strong></p>'''
     doc += '''
     </body>
 </html>
@@ -233,7 +256,7 @@ def log(request: HttpRequest) -> HttpResponse:
         # pentru numere negative
         ultimele = max(int(ultimele), 0)
     else:
-        ultimele = len(accesari)
+        ultimele = len(acces.accesari)
     iduri = request.GET.getlist('iduri')
     tabel = request.GET.get('tabel')
     cerere_accesari = request.GET.get('accesari')
