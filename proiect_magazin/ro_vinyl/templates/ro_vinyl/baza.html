@@ -8,6 +8,30 @@
     <body>
         <header>
             <h1>CDrom</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Acasa</a>
+                    <ul>
+                        <!-- <li><a href="/#noutati">Noutati</a></li>
+                        <li><a href="/#blog">Blog</a></li>
+                        <li><a href="/#genuri">Genuri</a></li>
+                        <li><a href="/#artisti">Artisti</a></li> -->
+                        <li><a href="{% url 'index' %}#noutati">Noutati</a></li>
+                        <li><a href="{% url 'index' %}#blog">Blog</a></li>
+                        <li><a href="{% url 'index' %}#genuri">Genuri</a></li>
+                        <li><a href="{% url 'index' %}#artisti">Artisti</a></li>
+                    </ul>
+                    </li>
+                    <!-- <li><a href="/despre">Despre</a> -->
+                    <li><a href="{% url 'despre' %}">Despre</a>
+                    <ul>
+                        <li><a href="{% url 'despre' %}#istorie">Istorie</a></li>
+                        <li><a href="{% url 'despre' %}#scop">Scop</a></li>
+                    </ul>
+                    <li><a href="{% url 'catalog' %}">Catalog</a></li>
+                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                </ul>
+            </nav>
         </header>       
         <main>
             {% block content %}{% endblock %}

@@ -1,56 +1,58 @@
-<!DOCTYPE html>
-<html>
-    <body>
-        {% if total_accesari_cerute %}
-        <p><strong>Au fost cerute {{ total_accesari }} accesari in total, de la pornirea serverului.</strong></p>
+{% extends "./baza.html" %}
+{% load static %}
+
+{% block title %}Logs{% endblock %}
+
+{% block content %}
+{% if total_accesari_cerute %}
+<p><strong>Au fost cerute {{ total_accesari }} accesari in total, de la pornirea serverului.</strong></p>
+{% endif %}
+
+{% if tabel is not None %}
+<table style="border: 1px solid black; border-collapse: collapse;">
+    <tr>
+    {% for proprietate in proprietati_tabel_upper %}
+        <th style="padding: 1em; border: 1px solid black;">{{ proprietate }}</th>
+    {% endfor %}
+    </tr>
+    {% for proprietati_accesare in proprietati_accesari %}
+    <tr>
+        {% for proprietate in proprietati_accesare %}
+        {% if proprietate is not None %}
+        <td style="padding: 1em; border: 1px solid black;">{{ proprietate }}</td>
         {% endif %}
-
-        {% if tabel is not None %}
-        <table style="border: 1px solid black; border-collapse: collapse;">
-            <tr>
-            {% for proprietate in proprietati_tabel_upper %}
-                <th style="padding: 1em; border: 1px solid black;">{{ proprietate }}</th>
-            {% endfor %}
-            </tr>
-            {% for proprietati_accesare in proprietati_accesari %}
-            <tr>
-                {% for proprietate in proprietati_accesare %}
-                {% if proprietate is not None %}
-                <td style="padding: 1em; border: 1px solid black;">{{ proprietate }}</td>
-                {% endif %}
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
-        {% elif not detalii_cerute %}
-
-        {% for info in info_accesari %}
-        <p>Accesarea nr. <strong>{{ info.0 }}</strong> a fost facuta la pagina {{ info.1 }}</strong></p>
         {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% elif not detalii_cerute %}
 
-        {% else %}
+{% for info in info_accesari %}
+<p>Accesarea nr. <strong>{{ info.0 }}</strong> a fost facuta la pagina {{ info.1 }}</strong></p>
+{% endfor %}
 
-        {% for info in info_accesari %}
-        <p>Accesarea nr. <strong>{{ info.0 }}</strong>:</p>
-        <ul>
-            <li>are IP-ul <strong>{{ info.1 }}</strong></li>
-            <li>a accesat url-ul <strong>{{ info.2 }}</strong></li>
-            <ul>
-                <li>pe data: <strong>{{ info.3 }}</strong></li>
-                <li>la ora: <strong>{{ info.4 }}</strong></li>
-            </ul>
-        </ul>
-        {% endfor %}
+{% else %}
 
-        {% endif %}
+{% for info in info_accesari %}
+<p>Accesarea nr. <strong>{{ info.0 }}</strong>:</p>
+<ul>
+    <li>are IP-ul <strong>{{ info.1 }}</strong></li>
+    <li>a accesat url-ul <strong>{{ info.2 }}</strong></li>
+    <ul>
+        <li>pe data: <strong>{{ info.3 }}</strong></li>
+        <li>la ora: <strong>{{ info.4 }}</strong></li>
+    </ul>
+</ul>
+{% endfor %}
 
-        {% if cmm_accesata_pagina != cmp_accesata_pagina %}
-        <p>Cea mai putin accesata pagina este: <strong>{{ cmp_accesata_pagina }}</strong></p>
-        <p>Cea mai mult accesata pagina este: <strong>{{ cmm_accesata_pagina }}</strong></p>
-        {% endif %}
+{% endif %}
 
-        {% if accesari_cerute > total_accesari %}
-        <p><strong>Exista doar <span style="color: green;">{{ total_accesari }}</span> accesari fata de <span style="color: red;">{{ accesari_cerute }}</span> accesari cerute</strong></p>
-        {% endif %}
-    </body>
-</html>
+{% if cmm_accesata_pagina != cmp_accesata_pagina %}
+<p>Cea mai putin accesata pagina este: <strong>{{ cmp_accesata_pagina }}</strong></p>
+<p>Cea mai mult accesata pagina este: <strong>{{ cmm_accesata_pagina }}</strong></p>
+{% endif %}
+
+{% if accesari_cerute > total_accesari %}
+<p><strong>Exista doar <span style="color: green;">{{ total_accesari }}</span> accesari fata de <span style="color: red;">{{ accesari_cerute }}</span> accesari cerute</strong></p>
+{% endif %}
+{% endblock %}

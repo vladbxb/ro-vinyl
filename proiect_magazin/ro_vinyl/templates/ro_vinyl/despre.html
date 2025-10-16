@@ -1,0 +1,44 @@
+{% extends "./baza.html" %}
+{% load static %}
+{% block title %}Despre CDrom{% endblock %}
+
+{% block content %}
+<h1>Despre</h1>
+<main>
+    <article>
+        <h2 id="istorie">Istorie</h2>
+        <p>Fondat in 2025, CDrom este un magazin conceput pentru noile generatii, pentru a retrai ceea ce nu au trait vreodata.</p>
+        <br>
+        <p>
+            Un baiat pe nume Vlad, student la facultate, s-a gandit sa inceapa un magazin online. Acesta adora cultura anilor 2000 si
+            frecventeaza targuri de vechituri, pentru a cauta articole de fashion si gadget-uri, cu scopul de a integra cat mai mult
+            acest sentiment in viata lui de zi cu zi.
+        </p>
+        <br>
+        <p>
+            Acum, isi doreste sa impartaseasca acest stil de viata cu mai multi oameni, creand micul lui colt al internetului,
+            specializat in a vinde articole audio-video, fizice, atat in format digital cat si analog.
+        </p>
+    </article>
+    <article>
+        <h2 id="scop">Scop</h2>
+        <p>CDrom este mai mult decat un magazin online. Scopul sau, in origine, nu este pentru profit, ci este pentru a promova o miscare.</p>
+        <br>
+        <p>
+            Pop culture-ul modern este atat sec, cat este si neoriginal pe masura. Urmand criza economica din 2008, la nivel mondial, multi au suferit
+            din punct de vedere financiar, ceea ce a dus la afectarea buna-starii lor, general vorbind. Din acest motiv, odata cu dezvoltarea noilor tehnologii
+            web (Web 2.0, Macromedia Flash), pop culture-ul s-a schimbat in mod radical. Expresivitatea artistica a depasit orice record, iar fashion-ul, muzica
+            si design-ul digital s-au materializat intr-o forma cu adevarat unica pentru acele vremuri, modelata dupa mai multe aspecte precum stilul de strada,
+            skeuomorphism si altele.
+        </p>
+        <br>
+        <p>
+            Acest magazin online incearca sa captureze acea atmosfera, punand la dispozitie un arsenal de continut audio, in format fizic
+            (pentru ca meritam privilegiul de a colectiona media in format fizic, pe care chiar o detinem) produse comercial in acea perioada, 
+            atat pentru nostalgici, cat si pentru cei nou interesati. Pentru unii era anilor 2000 este doar o amintire,
+            insa pentru noi, este mult mai mult.
+        </p>
+    </article>
+</main>
+<img src={% static 'ro_vinyl/imagini/starry.png' %} alt="imagine"/>
+{% endblock %}
