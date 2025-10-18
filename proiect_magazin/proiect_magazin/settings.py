@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ro_vinyl',
+    'cdrom.apps.CdromConfig',
 ]
 
 MIDDLEWARE = [
@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'ro_vinyl.middleware.logging.LoggingMiddleware',
+    'cdrom.middleware.logging.LoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'proiect_magazin.urls'
@@ -76,8 +76,16 @@ WSGI_APPLICATION = 'proiect_magazin.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'OPTIONS': {
+            'options': '-c search_path=django'
+        },
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'cdrom',
+        'USER': 'vlad',
+        'PASSWORD': 'vlad',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

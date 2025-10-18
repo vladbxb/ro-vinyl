@@ -19,7 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('ro_vinyl.urls')),
+    path('', include('cdrom.urls')),
     # path('', views.index, name='index'),
     # path('info/', views.info, name="info"),
     # path('info/data/', views.static_data, name="static_data"),

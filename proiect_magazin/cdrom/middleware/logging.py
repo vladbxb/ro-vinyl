@@ -2,7 +2,7 @@
 # https://docs.google.com/document/d/1lDJNvhsuVYqGF2KrQ4l7iRXq73-Mh_7WqoPhMseWkYU/edit?tab=t.0#heading=h.xifb2bxbc7q4
 
 from django.http import HttpRequest, HttpResponse
-from ro_vinyl import acces
+from cdrom import acces
 
 #     def __call__(self, request: HttpRequest):
 #         # cod de procesare a cererii ....

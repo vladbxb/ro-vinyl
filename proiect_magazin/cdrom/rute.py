@@ -2,16 +2,16 @@
 Views pentru paginile de info
 """
 # Project views
-from ro_vinyl import acces
+from cdrom import acces
 import datetime
-from django.http import HttpResponse, HttpRequest, QueryDict
+from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render
 
 
 
 def index(request: HttpRequest) -> HttpResponse:
     """Ruta pentru pagina 'index'."""
-    return render(request,"ro_vinyl/descriere.html")
+    return render(request,"cdrom/descriere.html")
 
 def info(request: HttpRequest) -> HttpResponse:
     """Ruta pentru pagina 'info'."""
@@ -19,7 +19,7 @@ def info(request: HttpRequest) -> HttpResponse:
     nume_parametri = [nume_parametru for (nume_parametru, _) in lista_parametri]
     return render(
         request,
-        'ro_vinyl/info.html',
+        'cdrom/info.html',
         {
             'nr_parametri': len(lista_parametri),
             'nume_parametri': nume_parametri,
@@ -58,7 +58,7 @@ def static_data(request: HttpRequest) -> HttpResponse:
     data_accesare = datetime.datetime.now()
     return render(
         request,
-        'ro_vinyl/data.html',
+        'cdrom/data.html',
         {
             'zi': acces.Accesare.formatare_data(data_accesare, acces.DATE_FORMAT_STR),
             'timp': acces.Accesare.formatare_data(data_accesare, acces.TIME_FORMAT_STR),
@@ -95,7 +95,7 @@ def afis_data(request: HttpRequest, data) -> HttpResponse:
             raise ValueError(f"Expected query params 'zi' or 'timp', instead got {data}")
     return render(
         request,
-        'ro_vinyl/data.html',
+        'cdrom/data.html',
         {
             'zi': zi,
             'timp': timp,
@@ -128,124 +128,124 @@ def afis_data(request: HttpRequest, data) -> HttpResponse:
 # '''
 #     return HttpResponse(doc)
 
-def craft_log_response(
-        accesari_cerute: int,
-        iduri: list[str], # de fapt folosit doar pentru a genera accesari_de_parcurs
-        tabel: str | None,
-        *,
-        total_accesari_cerute: bool,
-        detalii_cerute: bool,
-        dubluri_cerute: bool
-    ) -> HttpResponse:
-    """
-    Returneaza un HttpResponse pentru log-urile curente ale serverului,
-    bazat pe mai multe optiuni care pot fi pasate ca parametrii prin query-string.
-    """
-    doc = '''
-<html>
-    <body>
-'''
-    #############################################################
-    # Daca s-au cerut totalul de accesari, se executa partea asta
-    if total_accesari_cerute:
-        doc += f'''
-        <p><strong>Au fost cerute {len(acces.accesari)} accesari in total, de la pornirea serverului.</strong></p>
-'''
-    #############################################################
-
-    #############################################################
-    # Asta este pentru iduri specificate de utilizator (sau nu)
-    if len(iduri) > 0:
-        accesari_de_parcurs = acces.iduri_la_accesari(iduri, dubluri=dubluri_cerute)
-    else:
-        accesari_de_parcurs = acces.accesari[:min(accesari_cerute, len(acces.accesari))]
-    #############################################################
-
-    #############################################################
-    # Asta este pentru alegerea coloanelor din tabel
-    if tabel is not None:
-        doc += '''
-        <table style="border: 1px solid black; border-collapse: collapse;">
-            <tr>
-'''
-    # Daca se aleg toate coloanele sau coloane specifice
-        if tabel == 'tot':
-            proprietati_cerute = 'id,ip,url,data'
-        else:
-            proprietati_cerute = tabel
-        # Filtreaza proprietatile de la atributul 'tabel' care nu sunt asteptate de program
-        proprietati_str = [proprietate for proprietate in proprietati_cerute.split(',')
-                           if proprietate in acces.VALORI_TABEL]
-        for proprietate_str in proprietati_str:
-            doc += f'''
-                <th style="padding: 1em; border: 1px solid black;">{proprietate_str.upper()}</th>
-'''
-        doc += '''
-            </tr>
-'''
-        for accesare in accesari_de_parcurs:
-            # Din cauza ca proprietatile au fost filtrate mai devreme, metoda
-            # cere_proprietati() face o asertie la inceput ca lista proprietati_str
-            # sigur va contine doar proprietati valide
-            proprietati = accesare.cere_proprietati(proprietati_str)
-            doc += '''
-            <tr>
-'''
-            for proprietate in proprietati:
-                doc += f'''
-                <td style="padding: 1em; border: 1px solid black;">{proprietate}</td>
-'''
-            doc += '''
-            </tr>
-'''
-        doc += '''
-        </table>
-'''
-    #############################################################
-
-    # Daca a fost cerut tabel, nu mai conteaza detaliile, daca n-au fost cerute nici detaliile nici tabelul,
-    # se afiseaza o lista de mesaje simple
-    elif not detalii_cerute:
-        for accesare in accesari_de_parcurs:
-            doc += f'''
-            <p>Accesarea nr. <strong>{accesare.id + 1}</strong> a fost facuta la pagina {accesare.pagina}</strong></p>
-'''
-    else:
-    # Daca in schimb au fost cerute detaliile, se afiseaza si detaliile accesarilor
-        for accesare in accesari_de_parcurs:
-            doc += f'''
-            <p>Accesarea nr. <strong>{accesare.id + 1}</strong>:</p>
-            <ul>
-                <li>are IP-ul <strong>{accesare.ip_client}</strong></li>
-                <li>a accesat url-ul <strong>{accesare.url}</strong></li>
-                <ul>
-                    <li>pe data: <strong>{acces.Accesare.formatare_data(accesare.data_accesare, acces.DATE_FORMAT_STR)}</strong></li>
-                    <li>la ora: <strong>{acces.Accesare.formatare_data(accesare.data_accesare, acces.TIME_FORMAT_STR)}</strong></li>
-                </ul>
-            </ul>
- '''
-
-    ##########################################################
-    # Aici se afiseaza cea mai mult vizitata si cea mai putin vizitata pagina
-    cmp_accesata_pagina = acces.frecv_pagina(cea_mai_accesata=False)
-    cmm_accesata_pagina = acces.frecv_pagina(cea_mai_accesata=True)
-    doc += f'''
-            <p>Cea mai putin accesata pagina este: <strong>{cmp_accesata_pagina}</strong></p>
-'''
-    doc += f'''
-            <p>Cea mai mult accesata pagina este: <strong>{cmm_accesata_pagina}</strong></p>
-'''
-    ###########################################################
-
-    # Se afiseaza un mesaj de avertisment daca se cer mai multe accesari decat exista
-    if accesari_cerute > len(acces.accesari):
-        doc += f'''
-            <p><strong>Exista doar <span style="color: green;">{len(acces.accesari)}</span> accesari fata de <span style="color: red;">{accesari_cerute}</span> accesari cerute</strong></p>'''
-    doc += '''
-    </body>
-</html>
-'''
-    return HttpResponse(doc)
+# def craft_log_response(
+#         accesari_cerute: int,
+#         iduri: list[str], # de fapt folosit doar pentru a genera accesari_de_parcurs
+#         tabel: str | None,
+#         *,
+#         total_accesari_cerute: bool,
+#         detalii_cerute: bool,
+#         dubluri_cerute: bool
+#     ) -> HttpResponse:
+#     """
+#     Returneaza un HttpResponse pentru log-urile curente ale serverului,
+#     bazat pe mai multe optiuni care pot fi pasate ca parametrii prin query-string.
+#     """
+#     doc = '''
+# <html>
+#     <body>
+# '''
+#     #############################################################
+#     # Daca s-au cerut totalul de accesari, se executa partea asta
+#     if total_accesari_cerute:
+#         doc += f'''
+#         <p><strong>Au fost cerute {len(acces.accesari)} accesari in total, de la pornirea serverului.</strong></p>
+# '''
+#     #############################################################
+# 
+#     #############################################################
+#     # Asta este pentru iduri specificate de utilizator (sau nu)
+#     if len(iduri) > 0:
+#         accesari_de_parcurs = acces.iduri_la_accesari(iduri, dubluri=dubluri_cerute)
+#     else:
+#         accesari_de_parcurs = acces.accesari[:min(accesari_cerute, len(acces.accesari))]
+#     #############################################################
+# 
+#     #############################################################
+#     # Asta este pentru alegerea coloanelor din tabel
+#     if tabel is not None:
+#         doc += '''
+#         <table style="border: 1px solid black; border-collapse: collapse;">
+#             <tr>
+# '''
+#     # Daca se aleg toate coloanele sau coloane specifice
+#         if tabel == 'tot':
+#             proprietati_cerute = 'id,ip,url,data'
+#         else:
+#             proprietati_cerute = tabel
+#         # Filtreaza proprietatile de la atributul 'tabel' care nu sunt asteptate de program
+#         proprietati_str = [proprietate for proprietate in proprietati_cerute.split(',')
+#                            if proprietate in acces.VALORI_TABEL]
+#         for proprietate_str in proprietati_str:
+#             doc += f'''
+#                 <th style="padding: 1em; border: 1px solid black;">{proprietate_str.upper()}</th>
+# '''
+#         doc += '''
+#             </tr>
+# '''
+#         for accesare in accesari_de_parcurs:
+#             # Din cauza ca proprietatile au fost filtrate mai devreme, metoda
+#             # cere_proprietati() face o asertie la inceput ca lista proprietati_str
+#             # sigur va contine doar proprietati valide
+#             proprietati = accesare.cere_proprietati(proprietati_str)
+#             doc += '''
+#             <tr>
+# '''
+#             for proprietate in proprietati:
+#                 doc += f'''
+#                 <td style="padding: 1em; border: 1px solid black;">{proprietate}</td>
+# '''
+#             doc += '''
+#             </tr>
+# '''
+#         doc += '''
+#         </table>
+# '''
+#     #############################################################
+# 
+#     # Daca a fost cerut tabel, nu mai conteaza detaliile, daca n-au fost cerute nici detaliile nici tabelul,
+#     # se afiseaza o lista de mesaje simple
+#     elif not detalii_cerute:
+#         for accesare in accesari_de_parcurs:
+#             doc += f'''
+#             <p>Accesarea nr. <strong>{accesare.id + 1}</strong> a fost facuta la pagina {accesare.pagina}</strong></p>
+# '''
+#     else:
+#     # Daca in schimb au fost cerute detaliile, se afiseaza si detaliile accesarilor
+#         for accesare in accesari_de_parcurs:
+#             doc += f'''
+#             <p>Accesarea nr. <strong>{accesare.id + 1}</strong>:</p>
+#             <ul>
+#                 <li>are IP-ul <strong>{accesare.ip_client}</strong></li>
+#                 <li>a accesat url-ul <strong>{accesare.url}</strong></li>
+#                 <ul>
+#                     <li>pe data: <strong>{acces.Accesare.formatare_data(accesare.data_accesare, acces.DATE_FORMAT_STR)}</strong></li>
+#                     <li>la ora: <strong>{acces.Accesare.formatare_data(accesare.data_accesare, acces.TIME_FORMAT_STR)}</strong></li>
+#                 </ul>
+#             </ul>
+#  '''
+# 
+#     ##########################################################
+#     # Aici se afiseaza cea mai mult vizitata si cea mai putin vizitata pagina
+#     cmp_accesata_pagina = acces.frecv_pagina(cea_mai_accesata=False)
+#     cmm_accesata_pagina = acces.frecv_pagina(cea_mai_accesata=True)
+#     doc += f'''
+#             <p>Cea mai putin accesata pagina este: <strong>{cmp_accesata_pagina}</strong></p>
+# '''
+#     doc += f'''
+#             <p>Cea mai mult accesata pagina este: <strong>{cmm_accesata_pagina}</strong></p>
+# '''
+#     ###########################################################
+# 
+#     # Se afiseaza un mesaj de avertisment daca se cer mai multe accesari decat exista
+#     if accesari_cerute > len(acces.accesari):
+#         doc += f'''
+#             <p><strong>Exista doar <span style="color: green;">{len(acces.accesari)}</span> accesari fata de <span style="color: red;">{accesari_cerute}</span> accesari cerute</strong></p>'''
+#     doc += '''
+#     </body>
+# </html>
+# '''
+#     return HttpResponse(doc)
 
 def log(request: HttpRequest) -> HttpResponse:
     """Ruta pentru pagina 'log'."""
@@ -324,7 +324,7 @@ def log(request: HttpRequest) -> HttpResponse:
 
     return render(
         request,
-        'ro_vinyl/log.html',
+        'cdrom/log.html',
         params
     )
 #     _adauga_accesare(request)

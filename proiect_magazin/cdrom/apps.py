@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class RoVinylConfig(AppConfig):
+class CdromConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'ro_vinyl'
+    name = 'cdrom'

@@ -101,11 +101,17 @@ def iduri_la_accesari(iduri: list[str], *, dubluri: bool) -> list[Accesare]:
     assert len(iduri) > 0
     iduri_split_de_virgula = [s.split(',') for s in iduri]
     iduri_deimbricate = [s for iduri in iduri_split_de_virgula for s in iduri]
-    iduri_parsate_gen = (int(s) - 1 for s in iduri_deimbricate)
-    if dubluri:
-        iduri_de_parcurs = list(iduri_parsate_gen)
-    else:
-        iduri_de_parcurs = list(set(iduri_parsate_gen))
+    iduri_de_parcurs = [int(s) - 1 for s in iduri_deimbricate]
+    if not dubluri:
+        countdict = {}
+        for element in iduri_de_parcurs:
+            if element in countdict:
+                countdict[element] += 1
+            else:
+                countdict[element] = 1
+        iduri_de_parcurs.clear()
+        for key in countdict:
+            iduri_de_parcurs.append(key)
     for idx in iduri_de_parcurs:
         if idx >= len(accesari) or idx < 0:
             raise ValueError(f'Accesarea cu id-ul {idx + 1} din iduri cerute nu exista!')
